@@ -86,15 +86,20 @@ classdef bindImageDatastore < matlab.io.Datastore & ...
             responses = cell(self.MiniBatchSize,1);
             for i = 1:self.MiniBatchSize
                 idx = self.CurrentFileIndex+i-1;
+                
                 % Read Body regions and then resize it.
                 Body = imread(self.Files{idx});
+                Body = im2double(Body);
                 Body = imresize(Body,self.OutputSize);
+                
                 % Read the original Image and then resize it.
                 ImageFilePath = strrep(self.Files{idx},'bodies','images');
                 PersonIndex = regexp(self.Files{idx},'_person\d*','match');
                 ImageFilePath = strrep(ImageFilePath,PersonIndex{1},'');
                 Image = imread(ImageFilePath);
+                Image = im2double(Image);
                 Image = imresize(Image,self.OutputSize);
+                
                 % Bind the Body and Image
                 bindImages{i} = cat(3,Body,Image);
                 responses{i} = reshape(self.Responses(idx,:),1,1,self.NumResponses);
