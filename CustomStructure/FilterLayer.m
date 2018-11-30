@@ -16,6 +16,9 @@ classdef FilterLayer < nnet.layer.Layer
         Part
         InputWidth
         OutputWidth
+        % Global Parameters to Normalization the input images.
+        Norm_mean 
+        Norm_std 
         Resize
     end
 
@@ -23,12 +26,6 @@ classdef FilterLayer < nnet.layer.Layer
         % (Optional) Layer learnable parameters.
         %
         LearnableParameters = nnet.internal.cnn.layer.learnable.PredictionLearnableParameter.empty();
-        % Global Parameters to Normalization the input images.
-        Global_mean =  single([0.45897533113801; ...
-                               0.44155118600299; 0.40552199274783]);
-        Global_std = single( [0.23027497714954;...
-                                0.22752317402935;0.23638979553161]);
-        % Layer learnable parameters go here.
     end
     
     methods
@@ -40,7 +37,11 @@ classdef FilterLayer < nnet.layer.Layer
             self.Part = part;
             self.InputWidth = inputWidth;
             self.OutputWidth = outputWidth;
-            self.Resize = (inputWidth~=outputWidth);
+            self.Norm_mean = reshape( single([0.45897533113801; ...
+                               0.44155118600299; 0.40552199274783]),1,1,3);
+            self.Norm_std = reshape(single([0.23027497714954;...
+                                0.22752317402935;0.23638979553161]),1,1,3);
+            self.Resize = (inputWidth == outputWidth);                
         end
         
         function Z = predict(self, X)
@@ -60,6 +61,7 @@ classdef FilterLayer < nnet.layer.Layer
             elseif strcmp(self.Part,'Image')
                 Z = X(:,:,4:6,:);
             end
+            Z = (Z - self.Norm_mean)./self.Norm_std;
             if (self.Resize) && ~isempty(Z)
                 Z = imresize(Z,[self.OutputWidth,self.OutputWidth]);
             end
