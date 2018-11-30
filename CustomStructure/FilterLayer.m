@@ -74,6 +74,7 @@ classdef FilterLayer < nnet.layer.Layer
             elseif strcmp(self.Part,'Image')
                 Z = X(:,:,4:6,:);
             end
+            Z = (Z - self.Norm_mean)./self.Norm_std;
             if (self.Resize) && ~isempty(Z)
                 Z = imresize(Z,[self.OutputWidth,self.OutputWidth]);
             end
