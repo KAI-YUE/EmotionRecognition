@@ -4,9 +4,7 @@
 % augmentPlaneImageDatastore.
 % output,
 % Options: TrainingOptions.
-% (Attention: since the data table puts the cropped bodies and original
-% images together, we set 'Shuffle' to 'never'. It can be realized in the 
-% FilterLayer.)
+% Change the dirCheckPoint if necessary.
 
 function Options = loadOptions(val)
 Options =  trainingOptions('adam', ...
