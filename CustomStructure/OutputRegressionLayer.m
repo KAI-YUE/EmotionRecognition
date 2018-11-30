@@ -58,8 +58,8 @@ classdef OutputRegressionLayer < nnet.layer.RegressionLayer
             %
             % Inputs:
             %         self - Output layer
-            %         Y     每 Predictions made by network
-            %         T     每 Training targets
+            %         Y     穡C Predictions made by network
+            %         T     穡C Training targets
             %
             % Output:
             %         loss  - Loss between Y and T
@@ -92,8 +92,8 @@ classdef OutputRegressionLayer < nnet.layer.RegressionLayer
             %
             % Inputs:
             %         self - Output layer
-            %         Y     每 Predictions made by network
-            %         T     每 Training targets
+            %         Y     穡C Predictions made by network
+            %         T     穡C Training targets
             %
             % Output:
             %         dLdY  - Derivative of the loss with respect to the predictions Y
@@ -124,7 +124,7 @@ classdef OutputRegressionLayer < nnet.layer.RegressionLayer
             % Here goes gradient of this layer
             dZdY(:,:,1:self.NumCategories,:) = dZdY_disc;
             
-            % Repeat the matrix of gradients
+            % Mask gradients
             mask = (dZdY > 1e-9);
             dLdY = mask.*dZdY;
         end
