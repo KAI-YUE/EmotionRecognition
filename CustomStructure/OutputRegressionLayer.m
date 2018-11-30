@@ -70,7 +70,7 @@ classdef OutputRegressionLayer < nnet.layer.RegressionLayer
             Tcont = T(:,:,self.NumCategories+1:end,:);
             
             % Apply sigmoid function to Ydisc
-            Ydisc = 1/1+exp(-Ydisc);
+            Ydisc = 1./(1+exp(-Ydisc));
             
             % Set the weight
             vk = (abs(Ycont - Tcont) > self.Parameters.theta);
@@ -104,7 +104,7 @@ classdef OutputRegressionLayer < nnet.layer.RegressionLayer
             Tcont = T(:,:,self.NumCategories+1:end,:);
 
             % Apply sigmoid function to Ydisc
-            Ydisc = (1/(1+exp(-Ydisc)));
+            Ydisc = 1./(1+exp(-Ydisc));
             
             vk = (abs(Ycont - Tcont) > self.Parameters.theta);
             Wi = reshape(self.Parameters.wi,1,1,self.NumCategories);
@@ -117,7 +117,7 @@ classdef OutputRegressionLayer < nnet.layer.RegressionLayer
                
             % Backward propogation of sigmoid
             dZdY_disc = dZdY(:,:,1:self.NumCategories,:);
-            dZdY_disc = exp(-dZdY)/(1+exp(-dZdY)).^2.*dZdY_disc;
+            dZdY_disc = exp(-dZdY_disc)./(1+exp(-dZdY_disc)).^2.*dZdY_disc;
             
             % Here goes gradient of this layer
             dZdY(:,:,1:self.NumCategories,:) = dZdY_disc;
