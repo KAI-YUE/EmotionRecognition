@@ -4,7 +4,6 @@
 
 function FullNet  = InitNet
 params = parameters;
-Options = struct('wi',params.w,'theta',params.theta,'lamda',params.lamda);
 BoLayers = Body_Layers;
 ImLayers = Image_Layers;
 
@@ -31,7 +30,7 @@ OutputLayers = [
     dropoutLayer('Name','Outdrop');
     % Regularize the output the the formal responses for regression
     fullyConnectedLayer(29,'Name','OutputFc');
-    OutputRegressionLayer('RegressionOutput',Options);
+    OutputRegressionLayer('RegressionOutput',params);
 ];
 
 FullNet = addLayers(FullNet,OutputLayers);
