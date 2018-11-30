@@ -1,6 +1,6 @@
 % This is a Regression Layer to output both discrete and continuous 
-% value of EMOTIC Model. The softmax function is also leveraged here, i.e.,
-% softmaxLayer is embedded in this layer.
+% value of EMOTIC Model. The sigmoid function is also leveraged here, i.e.,
+% sigmoidLayer is embedded in this layer.
 % The loss function is defined as follows:
 % Lcomb = lamda_disc * L_disc+ lamda_cont * Lcont
 % where,
@@ -13,14 +13,15 @@
 % the discrete dimension and 27:29 denotes continuous VAD dimension.)
 % All of these parameters are set in structure Parameters by defalut, in
 % which case wi equals to each other, lamda = [1/6 1] and theta equals 
-% to 0.2;
+% to 0.5;
 % Make a change if necessary.
 % Yue-Kai, USTC.
 
 classdef OutputRegressionLayer < nnet.layer.RegressionLayer
     properties
       % Default Layer properties.
-      Parameters = struct('wi',ones(26,1,'logical'),'theta',0.2,'lamda',[1/6;1]);
+      Parameters = struct('wi',ones(26,1,'logical'),'theta',0.5,...
+                            'lamda',[1/6;1],'PrThreshold',0.7);
       NumCategories
       NumContinuous
     end
@@ -58,8 +59,8 @@ classdef OutputRegressionLayer < nnet.layer.RegressionLayer
             %
             % Inputs:
             %         self - Output layer
-            %         Y     ¨C Predictions made by network
-            %         T     ¨C Training targets
+            %         Y     – Predictions made by network
+            %         T     – Training targets
             %
             % Output:
             %         loss  - Loss between Y and T
@@ -68,9 +69,8 @@ classdef OutputRegressionLayer < nnet.layer.RegressionLayer
             Tdisc = T(:,:,1:self.NumCategories,:);
             Tcont = T(:,:,self.NumCategories+1:end,:);
             
-            % Apply softmax function to Ydisc
-            denominater = sum(exp(Ydisc),3);
-            Ydisc = exp(Ydisc)./denominater;
+            % Apply sigmoid function to Ydisc
+            Ydisc = 1/1+exp(-Ydisc);
             
             % Set the weight
             vk = (abs(Ycont - Tcont) > self.Parameters.theta);
@@ -92,8 +92,8 @@ classdef OutputRegressionLayer < nnet.layer.RegressionLayer
             %
             % Inputs:
             %         self - Output layer
-            %         Y     ¨C Predictions made by network
-            %         T     ¨C Training targets
+            %         Y     – Predictions made by network
+            %         T     – Training targets
             %
             % Output:
             %         dLdY  - Derivative of the loss with respect to the predictions Y
@@ -102,10 +102,9 @@ classdef OutputRegressionLayer < nnet.layer.RegressionLayer
             Ycont = Y(:,:,self.NumCategories+1:end,:);
             Tdisc = T(:,:,1:self.NumCategories,:);
             Tcont = T(:,:,self.NumCategories+1:end,:);
-            % Observations = size(Ydisc,4);
-            % Apply softmax function to Ydisc
-            denominater = sum(exp(Ydisc),3);
-            Ydisc = exp(Ydisc)./denominater;
+
+            % Apply sigmoid function to Ydisc
+            Ydisc = (1/(1+exp(-Ydisc)));
             
             vk = (abs(Ycont - Tcont) > self.Parameters.theta);
             Wi = reshape(self.Parameters.wi,1,1,self.NumCategories);
@@ -116,15 +115,14 @@ classdef OutputRegressionLayer < nnet.layer.RegressionLayer
             dZdY = cat(3,lamda_disc*Wi.*(Ydisc-Tdisc)*0.076923,...
                    lamda_cont*vk.*(Ycont - Tcont)*0.666667);
                
-            % Backward propogation of SoftmaxLayer
+            % Backward propogation of sigmoid
             dZdY_disc = dZdY(:,:,1:self.NumCategories,:);
-            denominater = sum(exp(dZdY_disc),3);
-            dZdY_disc = exp(dZdY_disc)./denominater.*(1-sum(exp(dZdY_disc)./denominater,3)).*dZdY_disc;
+            dZdY_disc = exp(-dZdY)/(1+exp(-dZdY)).^2.*dZdY_disc;
             
             % Here goes gradient of this layer
             dZdY(:,:,1:self.NumCategories,:) = dZdY_disc;
             
-            % Mask gradients
+            % Masking the gradients
             mask = (dZdY > 1e-9);
             dLdY = mask.*dZdY;
         end
