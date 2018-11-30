@@ -3,4 +3,4 @@ We are building a CNN model to identify the emotions of the person in picture. C
 
 Before runnng main.m, pro-treating the database is necessary. Please fix the annotations and flawd data.
 
-YUe, Kai
+Yue, Kai
