@@ -123,7 +123,7 @@ classdef OutputRegressionLayer < nnet.layer.RegressionLayer
             dZdY(:,:,1:self.NumCategories,:) = dZdY_disc;
             
             % Masking the gradients
-            mask = (dZdY > 1e-9);
+            mask = (abs(dZdY) > 1e-9);
             dLdY = mask.*dZdY;
         end
     end
