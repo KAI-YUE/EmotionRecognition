@@ -61,7 +61,7 @@ classdef bindImageDatastore < matlab.io.Datastore & ...
             % DispatchInBackground is set to false by default.
             self.DispatchInBackground = false;
             % Set Augment options
-            if exist('augment','var')
+            if exist('augmentOptions','var')
                 tags = fieldnames(self.AugmentOptions);
                     for i=1:length(tags)
                         if isfield(augmentOptions,tags{i})
@@ -121,7 +121,23 @@ classdef bindImageDatastore < matlab.io.Datastore & ...
             responses = cell(indices_len,1);
             for i = 1:indices_len
                 idx = indices(i);
-                images{i} = imread(self.Files{idx});
+                
+                % Read Body regions and then resize it.
+                Body = imread(self.Files{idx});
+                Body = im2double(Body);
+                Body = imresize(Body,self.OutputSize);
+                
+                % Read the original Image and then resize it.
+                ImageFilePath = strrep(self.Files{idx},'bodies','images');
+                PersonIndex = regexp(self.Files{idx},'_person\d*','match');
+                ImageFilePath = strrep(ImageFilePath,PersonIndex{1},'');
+                Image = imread(ImageFilePath);
+                Image = im2double(Image);
+                Image = imresize(Image,self.OutputSize);
+                
+                % Bind the Body and Image
+                images{i} = cat(3,Body,Image);
+                
                 responses{i} = reshape(self.Responses(idx,:),1,1,self.NumResponses);
             end
             images = self.augmentationToBatch(images);
