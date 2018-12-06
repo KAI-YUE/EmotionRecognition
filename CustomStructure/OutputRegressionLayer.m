@@ -1,6 +1,5 @@
 % This is a Regression Layer to output both discrete and continuous 
-% value of EMOTIC Model. The sigmoid function is also leveraged here, i.e.,
-% sigmoidLayer is embedded in this layer.
+% value of EMOTIC Model. 
 % The loss function is defined as follows:
 % Lcomb = lamda_disc * L_disc+ lamda_cont * Lcont
 % where,
@@ -20,8 +19,7 @@
 classdef OutputRegressionLayer < nnet.layer.RegressionLayer
     properties
       % Default Layer properties.
-      Parameters = struct('wi',ones(26,1,'logical'),'theta',0.5,...
-                            'lamda',[1/6;1],'PrThreshold',0.7);
+      Parameters = struct('theta',0.5,'lamda',[1/6;1],'PrThreshold',0.7,'Bias_c',1.2);
       NumCategories
       NumContinuous
     end
@@ -32,14 +30,14 @@ classdef OutputRegressionLayer < nnet.layer.RegressionLayer
             self.Name = name;
             self.Description = 'Sum of Error';
             
-            categoriess = {'Peace'; 'Affection'; 'Esteem'; 'Anticipation'; 'Engagement'; 
+            categories = {'Peace'; 'Affection'; 'Esteem'; 'Anticipation'; 'Engagement'; 
             'Confidence'; 'Happiness'; 'Pleasure'; 'Excitement'; 'Surprise'; 'Sympathy'; 
              'Doubt/Confusion'; 'Disconnection'; 'Fatigue'; 'Embarrassment';
             'Yearning'; 'Disapproval'; 'Aversion'; 'Annoyance'; 'Anger'; 'Sensitivity';
              'Sadness';  'Disquietment'; 'Fear'; 'Pain'; 'Suffering'};
-            self.NumCategories = length(categoriess);
+            self.NumCategories = length(categories);
             self.NumContinuous = 3;
-            self.ResponseNames = cat(1,categoriess,{'Valence';'Arousal';'Dominance'});
+            self.ResponseNames = cat(1,categories,{'Valence';'Arousal';'Dominance'});
             
             tags = fieldnames(parameters);
             tags_len = length(tags);
@@ -69,12 +67,12 @@ classdef OutputRegressionLayer < nnet.layer.RegressionLayer
             Tdisc = T(:,:,1:self.NumCategories,:);
             Tcont = T(:,:,self.NumCategories+1:end,:);
             
-            % Apply sigmoid function to Ydisc
-            Ydisc = 1./(1+exp(-Ydisc));
-            
             % Set the weight
             vk = (abs(Ycont - Tcont) > self.Parameters.theta);
-            Wi = reshape(self.Parameters.wi,1,1,self.NumCategories);
+            TotalCategories = sum(Tdisc,'all');
+            Pr = sum(Tdisc,4)/TotalCategories;
+            Wi = 1./log(Pr+self.Parameters.Bias_c);
+            
             lamda_disc = self.Parameters.lamda(1);
             lamda_cont = self.Parameters.lamda(2);
             % In order to avoid division, we take 1/26 = 0.038462
@@ -102,29 +100,23 @@ classdef OutputRegressionLayer < nnet.layer.RegressionLayer
             Ycont = Y(:,:,self.NumCategories+1:end,:);
             Tdisc = T(:,:,1:self.NumCategories,:);
             Tcont = T(:,:,self.NumCategories+1:end,:);
-
-            % Apply sigmoid function to Ydisc
-            Ydisc = 1./(1+exp(-Ydisc));
             
+            % Set the weight, same as forwardloss
             vk = (abs(Ycont - Tcont) > self.Parameters.theta);
-            Wi = reshape(self.Parameters.wi,1,1,self.NumCategories);
+            TotalCategories = sum(Tdisc,'all');
+            Pr = sum(Tdisc,4)/TotalCategories;
+            Wi = 1./log(Pr+self.Parameters.Bias_c);
+            
             lamda_disc = self.Parameters.lamda(1);
             lamda_cont = self.Parameters.lamda(2);
             % Due to the derivative, we take 1/13 = 0.076923 and 2/3 =
             % 0.666667
-            dZdY = cat(3,lamda_disc*Wi.*(Ydisc-Tdisc)*0.076923,...
+            dLdY = cat(3,lamda_disc*Wi.*(Ydisc-Tdisc)*0.076923,...
                    lamda_cont*vk.*(Ycont - Tcont)*0.666667);
-               
-            % Backward propogation of sigmoid
-            dZdY_disc = dZdY(:,:,1:self.NumCategories,:);
-            dZdY_disc = exp(-dZdY_disc)./(1+exp(-dZdY_disc)).^2.*dZdY_disc;
             
-            % Here goes gradient of this layer
-            dZdY(:,:,1:self.NumCategories,:) = dZdY_disc;
-            
-            % Masking the gradients
-            mask = (abs(dZdY) > 1e-9);
-            dLdY = mask.*dZdY;
+            % Mask the gradients
+            mask = (abs(dLdY) > 1e-9);
+            dLdY = mask.*dLdY;
         end
     end
 end
