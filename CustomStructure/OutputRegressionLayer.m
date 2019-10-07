@@ -1,4 +1,4 @@
-% This is a Regression Layer to output both discrete and continuous 
+﻿% This is a Regression Layer to output both discrete and continuous 
 % value of EMOTIC Model. 
 % The loss function is defined as follows:
 % Lcomb = lamda_disc * L_disc+ lamda_cont * Lcont
@@ -14,7 +14,6 @@
 % which case wi equals to each other, lamda = [1/6 1] and theta equals 
 % to 0.5;
 % Make a change if necessary.
-% Yue-Kai, USTC.
 
 classdef OutputRegressionLayer < nnet.layer.RegressionLayer
     properties

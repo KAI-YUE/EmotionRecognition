@@ -1,6 +1,7 @@
 % This function initializes the full network and connets the branches
 % of the Model proposed in EMOTIC, CVPR 2017.
 % Yue-Kai, USTC.
+%
 
 function FullNet  = InitNet
 params = parameters;

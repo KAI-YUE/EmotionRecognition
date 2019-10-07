@@ -1,4 +1,3 @@
-% CNN Model for CVPR2017
 % Change the DirRoot and Options if necessary.
 
 load('train.mat');

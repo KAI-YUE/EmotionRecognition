@@ -4,7 +4,7 @@
 % the fullyconnectesLayer.
 %
 % The Template is from ImageInput.m( Deep learning toolbox.)
-% Yue-Kai, USTC.
+%
 %
 classdef sigmoidLayer < nnet.layer.Layer
     properties (Access = protected)      

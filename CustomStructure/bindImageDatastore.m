@@ -13,7 +13,7 @@
 % together. BindImages have six planes, and they will be seperated in the 
 % filterLayer.It is designed for the EMOTIC model in CVPR2017.
 % The template is from MATLAB augmentedImageDatastore.
-% Yue- Kai,USTC.
+%
 % 
 classdef bindImageDatastore < matlab.io.Datastore & ...
                        matlab.io.datastore.MiniBatchable &...

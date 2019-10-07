@@ -5,6 +5,7 @@
 % output,
 % Options: TrainingOptions.
 % Change the dirCheckPoint if necessary.
+%
 
 function Options = loadOptions(val)
 Options =  trainingOptions('adam', ...

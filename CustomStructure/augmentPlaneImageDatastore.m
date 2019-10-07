@@ -16,7 +16,7 @@
 % is cropped body, then a eyes matrix will be caught to the third
 % dimension.
 % The template is from MATLAB augmentedImageDatastore.
-% Yue- Kai,USTC.
+%
 % 
 classdef augmentPlaneImageDatastore < matlab.io.Datastore & ...
                        matlab.io.datastore.MiniBatchable &...

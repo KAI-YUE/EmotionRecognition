@@ -7,7 +7,7 @@
 % them to different branches. Meanwhile, images will be Normalized in this Layer.
 %
 % The Template is from ImageInput.m( Deep learning toolbox.)
-% Yue-Kai, USTC.
+%
 %
 classdef FilterLayer < nnet.layer.Layer
     properties       

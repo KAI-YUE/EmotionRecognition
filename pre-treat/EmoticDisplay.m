@@ -7,7 +7,6 @@ function EmoticDisplay(annotations,Mode,order)
 %       2,    annotation is from 'val'/'test'
 % order:      which person should be stressed in the image
 % It only displays one image once. Change the DiskRoot if necessary.
-% Yue-Kai, USTC.
 
 headcount = length(annotations(1).person);
 if ~exist('order','var')

@@ -1,6 +1,7 @@
 % Input a file name, this function finds the index of it in the annotation.
 % It can locates the flawed data in the original annotations.
 %
+
 function [idx,order] = findIndex(annotations,fileName)
 found = 0;
 dirRoot = 'D:\Big_Data\emotic';
